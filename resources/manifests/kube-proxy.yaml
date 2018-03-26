@@ -1,4 +1,4 @@
-apiVersion: apps/v1beta2
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: kube-proxy
@@ -47,9 +47,10 @@ spec:
       hostNetwork: true
       serviceAccountName: kube-proxy
       tolerations:
-      - key: node-role.kubernetes.io/master
+      - effect: NoSchedule
         operator: Exists
-        effect: NoSchedule
+      - effect: NoExecute
+        operator: Exists
       volumes:
       - name: lib-modules
         hostPath:
@@ -58,8 +59,8 @@ spec:
         hostPath:
           path: /usr/share/ca-certificates
       - name: kubeconfig
-        secret:
-          secretName: kubeconfig-in-cluster
+        configMap:
+          name: kubeconfig-in-cluster
   updateStrategy:
     rollingUpdate:
       maxUnavailable: 1
